@@ -12,8 +12,6 @@ int pushButton = 7;
 void setup() {
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
-
-  Serial.println("This is SN001A Program by P&D Analytics.");
   
   // make the pushbutton's pin an input:
   pinMode(pushButton, INPUT);
