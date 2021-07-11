@@ -1,0 +1,37 @@
+//SN001_Counter_only_apr29_2017
+//Code developed by Paul Bradt
+
+int counter = 0;
+//Program uses Switch to set high state and increments count 
+//holds high until it changes to low state.
+//Sends count increment over serial line
+
+bool switchOn = false;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+
+//The next step increments the counter every time switch changes
+
+  if(digitalRead(7) == HIGH and switchOn == false){
+     
+     Serial.print("Switch has been turned on for ");
+     Serial.print(counter);
+     Serial.print(" times.");
+     Serial.println("   ");
+     counter = counter + 1;
+     switchOn = true;
+
+     //The delay step ensures switch does not bounce
+     delay(500);
+ }
+
+ //The next step determines the state of the switch
+ if(digitalRead(7) == LOW and switchOn == true){
+
+    switchOn = false;
+ }
+}
