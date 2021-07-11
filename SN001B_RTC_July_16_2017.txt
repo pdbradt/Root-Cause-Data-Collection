@@ -1,0 +1,87 @@
+//SN001B_RTC_July_16_2017
+#include <Wire.h>
+#include <SparkFunDS1307RTC.h>
+#define DS1307_ADDRESS 0x68
+#define SQW_INPUT_PIN 2
+#define SQW_OUTPUT_PIN 13 
+
+int second = 0;
+int minute = 0;
+int hour = 0;
+int weekDay = 0;
+int monthDay = 0;
+int year = 0;
+int month = 0;
+
+void setup() {
+  Wire.begin();
+  Serial.begin(9600);
+
+  pinMode(SQW_INPUT_PIN, INPUT_PULLUP);
+  pinMode(SQW_OUTPUT_PIN, OUTPUT);
+  digitalWrite(SQW_OUTPUT_PIN, digitalRead(SQW_INPUT_PIN));
+  
+  rtc.begin();
+
+  rtc.writeSQW(SQW_SQUARE_1);
+  
+  //rtc.setTime(s, m, h, day, date, month, year); 
+  //day = day of the week; date = day of the month
+  //Need to reset line below to current date!!!!
+  rtc.setTime(30, 35, 7, 1, 16, 7, 17);
+}
+
+void loop() {
+  if(digitalRead(7)==LOW)
+    printDate();
+
+  delay(1000);
+}
+
+byte bcdToDec(byte val){
+  return ((val/16*10) + (val%16));
+}
+
+void updateTime(){
+  rtc.update();
+  Wire.beginTransmission(DS1307_ADDRESS);
+
+  byte zero = 0x00;
+  Wire.write(zero);
+  Wire.endTransmission();
+
+  Wire.requestFrom(DS1307_ADDRESS, 7);
+
+  second = rtc.second();
+  minute = rtc.minute();
+  hour = rtc.hour();
+  weekDay = rtc.dayStr();
+  monthDay = rtc.date();
+  month = rtc.month();
+  year = rtc.year();
+}
+
+void printDate(){
+  char *temp = malloc(2);
+  
+  updateTime();
+
+  //Print the date in this format 3/1/17 23:59:59
+
+  sprintf(temp, "%02d", month);
+  Serial.print(temp);
+  Serial.print("/");
+  sprintf(temp, "%02d", monthDay);
+  Serial.print(temp);
+  Serial.print("/");
+  Serial.print(year);
+  Serial.print(" ");
+  sprintf(temp, "%02d", hour);
+  Serial.print(temp);
+  Serial.print(":");
+  sprintf(temp, "%02d", minute);
+  Serial.print(temp);
+  Serial.print(":");
+  sprintf(temp, "%02d", second);
+  Serial.println(temp);
+}
