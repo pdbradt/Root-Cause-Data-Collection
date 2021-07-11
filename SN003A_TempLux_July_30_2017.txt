@@ -1,0 +1,80 @@
+//SN003A_TempLux_July_30_2017
+
+#include <Wire.h>
+#include "TSL2561.h"
+
+//Initiate Light sensor
+TSL2561 tsl(TSL2561_ADDR_FLOAT);
+
+//Set up Temp variables
+const int analogIn = A0;
+
+int RawValue = 0;
+double Voltage = 0;
+double tempC = 0;
+double tempF = 0;
+
+//Set up loop check for sensor
+void setup(void) {
+  Serial.begin(9600);
+
+  if(tsl.begin()){
+    Serial.println("Found Sensor");
+  } else {
+    Serial.println("No Sensor?");
+    while(1);
+  }
+
+  //Set up gain and integration time
+
+  //Gain is zero for bright light
+  tsl.setGain(TSL2561_GAIN_0X);
+
+  //13MS for speed
+  tsl.setTiming(TSL2561_INTEGRATIONTIME_13MS);
+}
+
+//Send data to serial port
+void loop() {
+  uint16_t x = tsl.getLuminosity(TSL2561_VISIBLE);
+
+  Serial.print("The raw value for visible from sensor is: ");
+  Serial.println(x, DEC);
+
+  uint32_t lum = tsl.getFullLuminosity();
+  uint16_t ir, full;
+
+  ir = lum >> 16;
+
+  full = lum & 0xFFFF;
+  Serial.print("IR: "); 
+  Serial.print(ir); 
+  Serial.print("\t\t");
+  Serial.print("Full: "); 
+  Serial.print(full); 
+  Serial.print("\t");
+  Serial.print("Visible: "); 
+  Serial.print(full - ir); 
+  Serial.print("\t");
+
+  Serial.print("Lux: "); 
+  Serial.println(tsl.calculateLux(full,ir));
+
+  RawValue = analogRead(analogIn);
+  Voltage = (RawValue / 1023.0) * 5000;
+  tempC = (Voltage - 500) * 0.1;
+  tempF = (tempC * 1.8) + 32;
+
+  Serial.print("The raw milli volts is: ");
+  Serial.print(Voltage, 0);
+  Serial.print(", Raw Temp Value is: ");
+  Serial.print(RawValue);
+  Serial.print("; Temperature in C = ");
+  Serial.print(tempC,1);
+  Serial.print("; Temperature in F = ");
+  Serial.println(tempF,1);
+  
+  
+  delay(10000);
+
+}
