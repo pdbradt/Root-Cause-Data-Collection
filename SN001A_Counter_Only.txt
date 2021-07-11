@@ -1,0 +1,35 @@
+/*
+  SN001A Counts and Time estimate
+  Modified DigitalReadSerial which is in the public domain.
+  Reads a digital input on pin 7, prints the result to the serial monitor
+  at 10 second intervals. 
+ */
+
+// digital pin 7 has a pushbutton attached to it. Give it a name:
+int pushButton = 7;
+
+// the setup routine runs once when you press reset:
+void setup() {
+  // initialize serial communication at 9600 bits per second:
+  Serial.begin(9600);
+
+  Serial.println("This is SN001A Program by P&D Analytics.");
+  
+  // make the pushbutton's pin an input:
+  pinMode(pushButton, INPUT);
+}
+
+// the loop routine runs over and over again forever:
+void loop() {
+  // read the input pin:
+  int buttonState = digitalRead(pushButton);
+  // print out the state of the button:
+  Serial.print("State of Switch is ");
+  
+  //Using Exclusive OR to get reverse state indication.
+  int displayState = (buttonState ^= 1);
+  Serial.print(displayState);
+  
+  delay(10000);        // delay in between reads 
+  Serial.println(" for 10 seconds ");
+}
